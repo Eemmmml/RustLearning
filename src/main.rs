@@ -1,43 +1,64 @@
-//将给定字符串转换为Pig Latin格式。在这个格式中，每个单词的
-//第一个辅音字母会被移动到单词的结尾并增加“ay”后缀，例如“first”就会变为“irst-fay”。
-//元音字母开头的单词则需要在结尾拼接上“hay”
-//（例如，“apple”就会变为“apple-hay”）。
-//要牢记我们讨论的关于UTF-8编码的内容！
+use std::collections::HashMap;
 
-enum WordKind {
-    Vowel,
-    Consonant,
+struct Employee {
+    name: String,
+    department: String,
 }
 
 fn main() {
-    let apple = String::from("apple");
-    let first = String::from("first");
-
-    println!("Apple: {}", pig_latin(apple));
-    println!("First : {}", pig_latin(first));
+    let mut departments: HashMap<String, Vec<String>> = HashMap::new();
+    add_employee(
+        Employee {
+            name: String::from("Mey"),
+            department: String::from("研发部"),
+        },
+        &mut departments,
+    );
+    add_employee(
+        Employee {
+            name: String::from("Jack"),
+            department: String::from("研发部"),
+        },
+        &mut departments,
+    );
+    add_employee(
+        Employee {
+            name: String::from("Kevin"),
+            department: String::from("市场部"),
+        },
+        &mut departments,
+    );
+    add_employee(
+        Employee {
+            name: String::from("Mike"),
+            department: String::from("人事部"),
+        },
+        &mut departments,
+    );
+    get_employees(String::from("研发部"), &departments);
+    get_employees(String::from("市场部"), &departments);
+    get_employees(String::from("人事部"), &departments);
+    get_employees(String::from("投资部"), &departments);
 }
 
-fn pig_latin(mut letter: String) -> String {
-    let first_letter = letter.split_off(1);
-    let vowel = [
-        String::from("a"),
-        String::from("e"),
-        String::from("i"),
-        String::from("o"),
-        String::from("u"),
-    ];
+fn add_employee(employee: Employee, company: &mut HashMap<String, Vec<String>>) {
+    let department = company.entry(employee.department).or_insert(Vec::new());
+    if !department.contains(&employee.name) {
+        department.push(employee.name);
+    }
+}
 
-    let mut kind = WordKind::Consonant;
-    if vowel.contains(&letter) {
-        kind = WordKind::Vowel;
-    };
-
-    match kind {
-        WordKind::Consonant => {
-            return format!("{}-{}ay", first_letter, letter);
+fn get_employees(department: String, company: &HashMap<String, Vec<String>>) {
+    match company.get(&department) {
+        Some(employees) => {
+            print!("{}: ", department);
+            for e in employees {
+                print!("{}, ", e);
+            }
+            println!();
         }
-        WordKind::Vowel => {
-            return format!("{}{}-hay", letter, first_letter);
+        None => {
+            println!("This department has no employee");
         }
     }
 }
